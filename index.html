@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCP Visual Workspace - Interactive Canvas</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0d1117;
+            color: #c9d1d9;
+            overflow: hidden;
+        }
+        
+        #canvas {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            background: 
+                radial-gradient(circle at 20% 50%, #1e293b 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, #1e3a5f 0%, transparent 50%),
+                radial-gradient(circle at 40% 20%, #2d1b47 0%, transparent 50%),
+                #0d1117;
+        }
+        
+        .node {
+            position: absolute;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border: 2px solid #38bdf8;
+            border-radius: 12px;
+            padding: 20px;
+            cursor: move;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(56, 189, 248, 0.2);
+            min-width: 200px;
+        }
+        
+        .node:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(56, 189, 248, 0.4);
+            border-color: #7dd3fc;
+        }
+        
+        .node.infrastructure { border-color: #f59e0b; }
+        .node.automation { border-color: #10b981; }
+        .node.knowledge { border-color: #8b5cf6; }
+        .node.business { border-color: #ef4444; }
+        .node.development { border-color: #06b6d4; }
+        
+        .node-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .node-content {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        
+        .connection {
+            position: absolute;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .controls {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(30, 41, 59, 0.9);
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #38bdf8;
+            backdrop-filter: blur(10px);
+        }
+        
+        button {
+            background: #38bdf8;
+            color: #0d1117;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+        
+        button:hover {
+            background: #7dd3fc;
+            transform: translateY(-1px);
+        }
+        
+        h1 {
+            margin-bottom: 20px;
+            font-size: 24px;
+            background: linear-gradient(45deg, #38bdf8, #8b5cf6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .stats {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #38bdf8;
+        }
+        
+        .stat {
+            display: flex;
+            justify-content: space-between;
+            margin: 8px 0;
+            font-size: 14px;
+        }
+        
+        .stat-value {
+            color: #38bdf8;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas">
+        <svg id="connections" style="position: absolute; width: 100%; height: 100%; z-index: -1;"></svg>
+    </div>
+    
+    <div class="controls">
+        <h1>MCP Visual Workspace</h1>
+        <button onclick="addNode('infrastructure')">➕ Infrastructure</button>
+        <button onclick="addNode('automation')">➕ Automation</button>
+        <button onclick="addNode('knowledge')">➕ Knowledge</button>
+        <button onclick="addNode('business')">➕ Business</button>
+        <button onclick="addNode('development')">➕ Development</button>
+        <button onclick="exportCanvas()">📸 Export</button>
+        <button onclick="resetCanvas()">🔄 Reset</button>
+        
+        <div class="stats">
+            <div class="stat">
+                <span>Total Nodes:</span>
+                <span class="stat-value" id="nodeCount">0</span>
+            </div>
+            <div class="stat">
+                <span>Connections:</span>
+                <span class="stat-value" id="connectionCount">0</span>
+            </div>
+            <div class="stat">
+                <span>Functions:</span>
+                <span class="stat-value">165+</span>
+            </div>
+            <div class="stat">
+                <span>Categories:</span>
+                <span class="stat-value">21</span>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let nodes = [];
+        let connections = [];
+        let selectedNode = null;
+        let isDragging = false;
+        let dragOffset = { x: 0, y: 0 };
+        
+        const nodeData = {
+            infrastructure: {
+                icon: '☁️',
+                items: ['Azure CLI (11)', 'Namecheap DNS (7)', 'Microsoft 365']
+            },
+            automation: {
+                icon: '⚡',
+                items: ['n8n Primary', 'n8n Backup', 'Analysis/REPL', 'Workflows (19)']
+            },
+            knowledge: {
+                icon: '🧠',
+                items: ['Obsidian (16)', 'Notion (15)', 'Memory Graph (9)']
+            },
+            business: {
+                icon: '💼',
+                items: ['HubSpot (25)', 'Google Sheets (15)', 'Reddit Intel (8)']
+            },
+            development: {
+                icon: '🚀',
+                items: ['GitHub (26)', 'File System (11)', 'GitMCP']
+            }
+        };
+        
+        function addNode(type) {
+            const canvas = document.getElementById('canvas');
+            const node = document.createElement('div');
+            node.className = `node ${type}`;
+            node.id = `node-${nodes.length}`;
+            
+            const data = nodeData[type];
+            const x = 100 + (nodes.length % 4) * 250;
+            const y = 100 + Math.floor(nodes.length / 4) * 200;
+            
+            node.style.left = x + 'px';
+            node.style.top = y + 'px';
+            
+            node.innerHTML = `
+                <div class="node-title">
+                    ${data.icon} ${type.charAt(0).toUpperCase() + type.slice(1)}
+                </div>
+                <div class="node-content">
+                    ${data.items.join('<br>')}
+                </div>
+            `;
+            
+            node.addEventListener('mousedown', startDrag);
+            node.addEventListener('click', selectNode);
+            
+            canvas.appendChild(node);
+            nodes.push({ id: node.id, type, x, y, element: node });
+            updateStats();
+        }
+        
+        function startDrag(e) {
+            if (e.button !== 0) return;
+            isDragging = true;
+            selectedNode = e.currentTarget;
+            
+            const rect = selectedNode.getBoundingClientRect();
+            dragOffset.x = e.clientX - rect.left;
+            dragOffset.y = e.clientY - rect.top;
+            
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('mouseup', stopDrag);
+            e.preventDefault();
+        }
+        
+        function drag(e) {
+            if (!isDragging || !selectedNode) return;
+            
+            const x = e.clientX - dragOffset.x;
+            const y = e.clientY - dragOffset.y;
+            
+            selectedNode.style.left = x + 'px';
+            selectedNode.style.top = y + 'px';
+            
+            const nodeData = nodes.find(n => n.id === selectedNode.id);
+            if (nodeData) {
+                nodeData.x = x;
+                nodeData.y = y;
+            }
+            
+            updateConnections();
+        }
+        
+        function stopDrag() {
+            isDragging = false;
+            document.removeEventListener('mousemove', drag);
+            document.removeEventListener('mouseup', stopDrag);
+        }
+        
+        function selectNode(e) {
+            if (isDragging) return;
+            
+            const node = e.currentTarget;
+            if (selectedNode && selectedNode !== node) {
+                createConnection(selectedNode.id, node.id);
+                selectedNode.style.outline = 'none';
+                selectedNode = null;
+            } else {
+                if (selectedNode) {
+                    selectedNode.style.outline = 'none';
+                }
+                selectedNode = node;
+                node.style.outline = '3px solid #38bdf8';
+            }
+        }
+        
+        function createConnection(fromId, toId) {
+            connections.push({ from: fromId, to: toId });
+            updateConnections();
+            updateStats();
+        }
+        
+        function updateConnections() {
+            const svg = document.getElementById('connections');
+            svg.innerHTML = '';
+            
+            connections.forEach(conn => {
+                const fromNode = nodes.find(n => n.id === conn.from);
+                const toNode = nodes.find(n => n.id === conn.to);
+                
+                if (fromNode && toNode) {
+                    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    line.setAttribute('x1', fromNode.x + 100);
+                    line.setAttribute('y1', fromNode.y + 50);
+                    line.setAttribute('x2', toNode.x + 100);
+                    line.setAttribute('y2', toNode.y + 50);
+                    line.setAttribute('stroke', '#38bdf8');
+                    line.setAttribute('stroke-width', '2');
+                    line.setAttribute('opacity', '0.5');
+                    svg.appendChild(line);
+                }
+            });
+        }
+        
+        function updateStats() {
+            document.getElementById('nodeCount').textContent = nodes.length;
+            document.getElementById('connectionCount').textContent = connections.length;
+        }
+        
+        function exportCanvas() {
+            const data = {
+                nodes: nodes.map(n => ({ id: n.id, type: n.type, x: n.x, y: n.y })),
+                connections: connections,
+                timestamp: new Date().toISOString()
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'mcp-visual-workspace.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        function resetCanvas() {
+            if (confirm('Reset the entire canvas?')) {
+                document.querySelectorAll('.node').forEach(n => n.remove());
+                nodes = [];
+                connections = [];
+                selectedNode = null;
+                updateConnections();
+                updateStats();
+            }
+        }
+        
+        // Initialize with example nodes
+        setTimeout(() => {
+            addNode('infrastructure');
+            addNode('automation');
+            addNode('knowledge');
+            createConnection('node-0', 'node-1');
+            createConnection('node-1', 'node-2');
+        }, 500);
+    </script>
+</body>
+</html>
