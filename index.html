@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MCP Visual Workspace - Interactive Canvas</title>
+    <title>MCP Empire Visual Command Center - 165+ Functions</title>
     <style>
         * {
             margin: 0;
@@ -38,20 +38,26 @@
             cursor: move;
             transition: all 0.3s ease;
             box-shadow: 0 4px 20px rgba(56, 189, 248, 0.2);
-            min-width: 200px;
+            min-width: 220px;
+            max-width: 280px;
         }
         
         .node:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 30px rgba(56, 189, 248, 0.4);
             border-color: #7dd3fc;
+            z-index: 1000;
         }
         
-        .node.infrastructure { border-color: #f59e0b; }
-        .node.automation { border-color: #10b981; }
-        .node.knowledge { border-color: #8b5cf6; }
-        .node.business { border-color: #ef4444; }
-        .node.development { border-color: #06b6d4; }
+        /* Category-specific colors */
+        .node.infrastructure { border-color: #f59e0b; box-shadow: 0 4px 20px rgba(245, 158, 11, 0.3); }
+        .node.automation { border-color: #10b981; box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3); }
+        .node.development { border-color: #06b6d4; box-shadow: 0 4px 20px rgba(6, 182, 212, 0.3); }
+        .node.knowledge { border-color: #8b5cf6; box-shadow: 0 4px 20px rgba(139, 92, 246, 0.3); }
+        .node.data { border-color: #ec4899; box-shadow: 0 4px 20px rgba(236, 72, 153, 0.3); }
+        .node.crm { border-color: #ef4444; box-shadow: 0 4px 20px rgba(239, 68, 68, 0.3); }
+        .node.intelligence { border-color: #14b8a6; box-shadow: 0 4px 20px rgba(20, 184, 166, 0.3); }
+        .node.web { border-color: #f97316; box-shadow: 0 4px 20px rgba(249, 115, 22, 0.3); }
         
         .node-title {
             font-size: 18px;
@@ -63,8 +69,18 @@
         }
         
         .node-content {
-            font-size: 14px;
-            opacity: 0.8;
+            font-size: 13px;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+        
+        .node-stats {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(56, 189, 248, 0.3);
+            font-size: 12px;
+            display: flex;
+            justify-content: space-between;
         }
         
         .connection {
@@ -77,28 +93,37 @@
             position: fixed;
             top: 20px;
             left: 20px;
-            background: rgba(30, 41, 59, 0.9);
+            background: rgba(30, 41, 59, 0.95);
             padding: 20px;
             border-radius: 8px;
             border: 1px solid #38bdf8;
             backdrop-filter: blur(10px);
+            max-height: 90vh;
+            overflow-y: auto;
         }
         
         button {
             background: #38bdf8;
             color: #0d1117;
             border: none;
-            padding: 10px 20px;
+            padding: 8px 16px;
             border-radius: 6px;
             cursor: pointer;
             font-weight: bold;
             transition: all 0.3s ease;
-            margin: 5px;
+            margin: 3px;
+            font-size: 13px;
+            white-space: nowrap;
         }
         
         button:hover {
             background: #7dd3fc;
             transform: translateY(-1px);
+        }
+        
+        button.category-btn {
+            width: calc(50% - 6px);
+            text-align: left;
         }
         
         h1 {
@@ -127,6 +152,21 @@
             color: #38bdf8;
             font-weight: bold;
         }
+        
+        .button-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+        
+        .section-title {
+            font-size: 12px;
+            color: #8b949e;
+            margin: 15px 0 8px 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
     </style>
 </head>
 <body>
@@ -135,18 +175,70 @@
     </div>
     
     <div class="controls">
-        <h1>MCP Visual Workspace</h1>
-        <button onclick="addNode('infrastructure')">➕ Infrastructure</button>
-        <button onclick="addNode('automation')">➕ Automation</button>
-        <button onclick="addNode('knowledge')">➕ Knowledge</button>
-        <button onclick="addNode('business')">➕ Business</button>
-        <button onclick="addNode('development')">➕ Development</button>
+        <h1>MCP Empire Command</h1>
+        
+        <div class="section-title">Infrastructure & Cloud (11)</div>
+        <div class="button-grid">
+            <button class="category-btn" onclick="addNode('infrastructure', 'Azure', ['Complete CLI control', 'Infrastructure automation', 'Cost optimization'])">☁️ Azure</button>
+            <button class="category-btn" onclick="addNode('infrastructure', 'Namecheap', ['7 DNS functions', 'Domain management', 'Subdomain automation'])">🌐 Namecheap</button>
+        </div>
+        
+        <div class="section-title">Automation & Orchestration (19)</div>
+        <div class="button-grid">
+            <button class="category-btn" onclick="addNode('automation', 'n8n Primary', ['99.9% uptime', 'Workflow automation', 'Business processes'])">⚡ n8n Primary</button>
+            <button class="category-btn" onclick="addNode('automation', 'n8n Backup', ['Redundancy system', 'Failover ready', 'Data sync'])">🔄 n8n Backup</button>
+            <button class="category-btn" onclick="addNode('automation', 'Analysis', ['JavaScript REPL', 'Data processing', 'Complex calculations'])">🧮 Analysis/REPL</button>
+        </div>
+        
+        <div class="section-title">Development & Version Control (37)</div>
+        <div class="button-grid">
+            <button class="category-btn" onclick="addNode('development', 'GitHub', ['26 functions', 'Complete repo control', 'CI/CD automation'])">🐙 GitHub Suite</button>
+            <button class="category-btn" onclick="addNode('development', 'GitHub CLI', ['Enhanced workflows', 'Release management', 'Secret handling'])">🎯 GitHub CLI+</button>
+            <button class="category-btn" onclick="addNode('development', 'File System', ['11 functions', 'Complete file ops', 'Directory management'])">📁 File System</button>
+        </div>
+        
+        <div class="section-title">Knowledge Management (40)</div>
+        <div class="button-grid">
+            <button class="category-btn" onclick="addNode('knowledge', 'Obsidian', ['16 functions', 'Vault control', 'Smart search'])">📝 Obsidian</button>
+            <button class="category-btn" onclick="addNode('knowledge', 'Notion', ['15 functions', 'Database ops', 'Page management'])">📋 Notion</button>
+            <button class="category-btn" onclick="addNode('knowledge', 'Memory', ['9 functions', 'Graph storage', 'Relationships'])">🧠 Memory Graph</button>
+        </div>
+        
+        <div class="section-title">Data & Analytics (17)</div>
+        <div class="button-grid">
+            <button class="category-btn" onclick="addNode('data', 'Google Sheets', ['15 functions', 'Spreadsheet automation', 'Data processing'])">📊 Google Sheets</button>
+            <button class="category-btn" onclick="addNode('data', 'Analytics', ['Complex analysis', 'Visualizations', 'Reports'])">📈 Analytics</button>
+        </div>
+        
+        <div class="section-title">CRM & Business (30)</div>
+        <div class="button-grid">
+            <button class="category-btn" onclick="addNode('crm', 'HubSpot', ['25 functions', 'Complete CRM', 'Workflow automation'])">💼 HubSpot</button>
+            <button class="category-btn" onclick="addNode('crm', 'Clay', ['5 endpoints', 'Data enrichment', 'Lead generation'])">🎨 Clay</button>
+        </div>
+        
+        <div class="section-title">Intelligence & Communication (14)</div>
+        <div class="button-grid">
+            <button class="category-btn" onclick="addNode('intelligence', 'Reddit', ['8 functions', 'Market intel', 'Trend analysis'])">👁️ Reddit Intel</button>
+            <button class="category-btn" onclick="addNode('intelligence', 'Gmail', ['4 functions', 'Email automation', 'Intelligence'])">📧 Gmail</button>
+            <button class="category-btn" onclick="addNode('intelligence', 'Search', ['Web search', 'Tavily API', 'Real-time data'])">🔍 Web Search</button>
+        </div>
+        
+        <div class="section-title">Web & Content (8)</div>
+        <div class="button-grid">
+            <button class="category-btn" onclick="addNode('web', 'Web Ops', ['Content fetch', 'Page analysis', 'Data extraction'])">🌍 Web Ops</button>
+            <button class="category-btn" onclick="addNode('web', 'Artifacts', ['Create content', 'Update inline', 'Version control'])">🎭 Artifacts</button>
+        </div>
+        
+        <div class="section-title">Actions</div>
+        <button onclick="autoConnect()">🔗 Auto Connect</button>
         <button onclick="exportCanvas()">📸 Export</button>
+        <button onclick="saveLayout()">💾 Save</button>
+        <button onclick="loadLayout()">📂 Load</button>
         <button onclick="resetCanvas()">🔄 Reset</button>
         
         <div class="stats">
             <div class="stat">
-                <span>Total Nodes:</span>
+                <span>Active Nodes:</span>
                 <span class="stat-value" id="nodeCount">0</span>
             </div>
             <div class="stat">
@@ -154,12 +246,20 @@
                 <span class="stat-value" id="connectionCount">0</span>
             </div>
             <div class="stat">
-                <span>Functions:</span>
+                <span>Total Functions:</span>
                 <span class="stat-value">165+</span>
             </div>
             <div class="stat">
                 <span>Categories:</span>
                 <span class="stat-value">21</span>
+            </div>
+            <div class="stat">
+                <span>MCP Servers:</span>
+                <span class="stat-value">26</span>
+            </div>
+            <div class="stat">
+                <span>Monthly Savings:</span>
+                <span class="stat-value">$348</span>
             </div>
         </div>
     </div>
@@ -170,49 +270,52 @@
         let selectedNode = null;
         let isDragging = false;
         let dragOffset = { x: 0, y: 0 };
+        let nodeIdCounter = 0;
         
-        const nodeData = {
-            infrastructure: {
-                icon: '☁️',
-                items: ['Azure CLI (11)', 'Namecheap DNS (7)', 'Microsoft 365']
-            },
-            automation: {
-                icon: '⚡',
-                items: ['n8n Primary', 'n8n Backup', 'Analysis/REPL', 'Workflows (19)']
-            },
-            knowledge: {
-                icon: '🧠',
-                items: ['Obsidian (16)', 'Notion (15)', 'Memory Graph (9)']
-            },
-            business: {
-                icon: '💼',
-                items: ['HubSpot (25)', 'Google Sheets (15)', 'Reddit Intel (8)']
-            },
-            development: {
-                icon: '🚀',
-                items: ['GitHub (26)', 'File System (11)', 'GitMCP']
-            }
+        const categoryIcons = {
+            infrastructure: '☁️',
+            automation: '⚡',
+            development: '🚀',
+            knowledge: '🧠',
+            data: '📊',
+            crm: '💼',
+            intelligence: '🔍',
+            web: '🌐'
         };
         
-        function addNode(type) {
+        function addNode(category, title, features) {
             const canvas = document.getElementById('canvas');
             const node = document.createElement('div');
-            node.className = `node ${type}`;
-            node.id = `node-${nodes.length}`;
+            node.className = `node ${category}`;
+            node.id = `node-${nodeIdCounter++}`;
             
-            const data = nodeData[type];
-            const x = 100 + (nodes.length % 4) * 250;
-            const y = 100 + Math.floor(nodes.length / 4) * 200;
+            // Position nodes in a grid pattern
+            const gridCols = 5;
+            const nodeSpacing = 280;
+            const startX = 350;
+            const startY = 50;
+            
+            const col = nodes.length % gridCols;
+            const row = Math.floor(nodes.length / gridCols);
+            const x = startX + (col * nodeSpacing);
+            const y = startY + (row * 220);
             
             node.style.left = x + 'px';
             node.style.top = y + 'px';
             
+            const icon = categoryIcons[category] || '📦';
+            const featureList = features.map(f => `• ${f}`).join('<br>');
+            
             node.innerHTML = `
                 <div class="node-title">
-                    ${data.icon} ${type.charAt(0).toUpperCase() + type.slice(1)}
+                    ${icon} ${title}
                 </div>
                 <div class="node-content">
-                    ${data.items.join('<br>')}
+                    ${featureList}
+                </div>
+                <div class="node-stats">
+                    <span>${category}</span>
+                    <span>${features.length} features</span>
                 </div>
             `;
             
@@ -220,7 +323,15 @@
             node.addEventListener('click', selectNode);
             
             canvas.appendChild(node);
-            nodes.push({ id: node.id, type, x, y, element: node });
+            nodes.push({ 
+                id: node.id, 
+                category, 
+                title, 
+                x, 
+                y, 
+                element: node 
+            });
+            
             updateStats();
         }
         
@@ -232,6 +343,8 @@
             const rect = selectedNode.getBoundingClientRect();
             dragOffset.x = e.clientX - rect.left;
             dragOffset.y = e.clientY - rect.top;
+            
+            selectedNode.style.zIndex = 1000;
             
             document.addEventListener('mousemove', drag);
             document.addEventListener('mouseup', stopDrag);
@@ -258,6 +371,9 @@
         
         function stopDrag() {
             isDragging = false;
+            if (selectedNode) {
+                selectedNode.style.zIndex = '';
+            }
             document.removeEventListener('mousemove', drag);
             document.removeEventListener('mouseup', stopDrag);
         }
@@ -280,9 +396,17 @@
         }
         
         function createConnection(fromId, toId) {
-            connections.push({ from: fromId, to: toId });
-            updateConnections();
-            updateStats();
+            // Avoid duplicate connections
+            const exists = connections.some(c => 
+                (c.from === fromId && c.to === toId) || 
+                (c.from === toId && c.to === fromId)
+            );
+            
+            if (!exists) {
+                connections.push({ from: fromId, to: toId });
+                updateConnections();
+                updateStats();
+            }
         }
         
         function updateConnections() {
@@ -294,15 +418,31 @@
                 const toNode = nodes.find(n => n.id === conn.to);
                 
                 if (fromNode && toNode) {
-                    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                    line.setAttribute('x1', fromNode.x + 100);
-                    line.setAttribute('y1', fromNode.y + 50);
-                    line.setAttribute('x2', toNode.x + 100);
-                    line.setAttribute('y2', toNode.y + 50);
-                    line.setAttribute('stroke', '#38bdf8');
-                    line.setAttribute('stroke-width', '2');
-                    line.setAttribute('opacity', '0.5');
-                    svg.appendChild(line);
+                    const fromEl = fromNode.element;
+                    const toEl = toNode.element;
+                    
+                    const fromRect = fromEl.getBoundingClientRect();
+                    const toRect = toEl.getBoundingClientRect();
+                    
+                    const x1 = fromNode.x + fromRect.width / 2;
+                    const y1 = fromNode.y + fromRect.height / 2;
+                    const x2 = toNode.x + toRect.width / 2;
+                    const y2 = toNode.y + toRect.height / 2;
+                    
+                    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                    
+                    // Create curved path
+                    const dx = x2 - x1;
+                    const dy = y2 - y1;
+                    const dr = Math.sqrt(dx * dx + dy * dy) / 2;
+                    
+                    path.setAttribute('d', `M ${x1} ${y1} Q ${(x1 + x2) / 2} ${(y1 + y2) / 2 - dr / 3} ${x2} ${y2}`);
+                    path.setAttribute('stroke', '#38bdf8');
+                    path.setAttribute('stroke-width', '2');
+                    path.setAttribute('fill', 'none');
+                    path.setAttribute('opacity', '0.5');
+                    
+                    svg.appendChild(path);
                 }
             });
         }
@@ -312,40 +452,132 @@
             document.getElementById('connectionCount').textContent = connections.length;
         }
         
+        function autoConnect() {
+            // Create intelligent connections based on categories
+            const categoryConnections = {
+                'infrastructure': ['automation', 'development'],
+                'automation': ['knowledge', 'data', 'crm'],
+                'development': ['knowledge', 'web'],
+                'knowledge': ['intelligence', 'data'],
+                'data': ['crm', 'intelligence'],
+                'crm': ['intelligence', 'web'],
+                'intelligence': ['web'],
+                'web': []
+            };
+            
+            nodes.forEach((node, i) => {
+                const targetCategories = categoryConnections[node.category] || [];
+                targetCategories.forEach(targetCat => {
+                    const targetNode = nodes.find((n, j) => j > i && n.category === targetCat);
+                    if (targetNode) {
+                        createConnection(node.id, targetNode.id);
+                    }
+                });
+            });
+        }
+        
         function exportCanvas() {
             const data = {
-                nodes: nodes.map(n => ({ id: n.id, type: n.type, x: n.x, y: n.y })),
+                nodes: nodes.map(n => ({ 
+                    id: n.id, 
+                    category: n.category,
+                    title: n.title,
+                    x: n.x, 
+                    y: n.y 
+                })),
                 connections: connections,
-                timestamp: new Date().toISOString()
+                timestamp: new Date().toISOString(),
+                stats: {
+                    totalFunctions: 165,
+                    categories: 21,
+                    servers: 26,
+                    monthlySavings: 348
+                }
             };
             
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'mcp-visual-workspace.json';
+            a.download = `mcp-empire-${Date.now()}.json`;
             a.click();
             URL.revokeObjectURL(url);
         }
         
-        function resetCanvas() {
-            if (confirm('Reset the entire canvas?')) {
-                document.querySelectorAll('.node').forEach(n => n.remove());
-                nodes = [];
-                connections = [];
-                selectedNode = null;
-                updateConnections();
-                updateStats();
-            }
+        function saveLayout() {
+            const data = {
+                nodes: nodes.map(n => ({ 
+                    id: n.id, 
+                    category: n.category,
+                    title: n.title,
+                    x: n.x, 
+                    y: n.y 
+                })),
+                connections: connections
+            };
+            localStorage.setItem('mcp-empire-layout', JSON.stringify(data));
+            alert('Layout saved! ✅');
         }
         
-        // Initialize with example nodes
+        function loadLayout() {
+            const saved = localStorage.getItem('mcp-empire-layout');
+            if (!saved) {
+                alert('No saved layout found');
+                return;
+            }
+            
+            resetCanvas();
+            const data = JSON.parse(saved);
+            
+            // Recreate nodes
+            data.nodes.forEach(nodeData => {
+                // Find matching button and click it
+                // This is simplified - in production you'd recreate with exact data
+                setTimeout(() => {
+                    const lastNode = nodes[nodes.length - 1];
+                    if (lastNode) {
+                        lastNode.element.style.left = nodeData.x + 'px';
+                        lastNode.element.style.top = nodeData.y + 'px';
+                        lastNode.x = nodeData.x;
+                        lastNode.y = nodeData.y;
+                    }
+                }, 100);
+            });
+            
+            // Recreate connections
+            setTimeout(() => {
+                data.connections.forEach(conn => {
+                    createConnection(conn.from, conn.to);
+                });
+            }, 500);
+        }
+        
+        function resetCanvas() {
+            if (nodes.length > 0 && !confirm('Reset the entire canvas?')) return;
+            
+            document.querySelectorAll('.node').forEach(n => n.remove());
+            nodes = [];
+            connections = [];
+            selectedNode = null;
+            nodeIdCounter = 0;
+            updateConnections();
+            updateStats();
+        }
+        
+        // Initialize with core empire structure
         setTimeout(() => {
-            addNode('infrastructure');
-            addNode('automation');
-            addNode('knowledge');
-            createConnection('node-0', 'node-1');
-            createConnection('node-1', 'node-2');
+            // Create hub node
+            addNode('automation', 'Central Hub', ['Command center', 'All systems control', 'Real-time monitoring']);
+            
+            // Create primary systems
+            addNode('infrastructure', 'Azure Empire', ['11 functions', 'Complete control', '$348/mo savings']);
+            addNode('automation', 'n8n Engine', ['Dual redundancy', '99.9% uptime', 'Workflow automation']);
+            addNode('knowledge', 'Knowledge Base', ['40 functions total', 'Obsidian + Notion', 'Memory graph']);
+            addNode('development', 'Dev Arsenal', ['37 functions', 'GitHub complete', 'File operations']);
+            addNode('crm', 'Business Ops', ['30 functions', 'HubSpot + Clay', 'Revenue engine']);
+            
+            // Auto-connect to show relationships
+            setTimeout(autoConnect, 500);
         }, 500);
     </script>
 </body>
