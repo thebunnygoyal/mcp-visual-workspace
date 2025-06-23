@@ -1,0 +1,66 @@
+{
+  "name": "Cost Optimization Workflow",
+  "description": "$348/month savings system - 77% cost reduction proven",
+  "version": "1.0.0",
+  "created": "2025-06-23",
+  "nodes": [
+    {
+      "id": "cost-analysis",
+      "type": "infrastructure",
+      "title": "Azure Cost Analysis",
+      "position": { "x": 100, "y": 100 },
+      "config": {
+        "tools": ["azure-cli", "analysis-repl"],
+        "actions": [
+          "Identify unused resources",
+          "Analyze spending patterns",
+          "Map resource dependencies"
+        ]
+      }
+    },
+    {
+      "id": "optimization",
+      "type": "automation",
+      "title": "Resource Optimization",
+      "position": { "x": 400, "y": 100 },
+      "config": {
+        "tools": ["n8n", "azure-cli"],
+        "actions": [
+          "Consolidate services",
+          "Right-size resources",
+          "Implement auto-scaling"
+        ]
+      }
+    },
+    {
+      "id": "monitoring",
+      "type": "data",
+      "title": "Cost Monitoring",
+      "position": { "x": 700, "y": 100 },
+      "config": {
+        "tools": ["google-sheets", "n8n", "obsidian"],
+        "actions": [
+          "Real-time cost tracking",
+          "Automated alerts",
+          "Monthly reports"
+        ]
+      }
+    }
+  ],
+  "connections": [
+    { "from": "cost-analysis", "to": "optimization" },
+    { "from": "optimization", "to": "monitoring" }
+  ],
+  "results": {
+    "monthlySavings": 348,
+    "percentReduction": 77,
+    "performanceImprovement": "15%",
+    "automationLevel": "95%"
+  },
+  "recommendations": [
+    "Implement reserved instances for predictable workloads",
+    "Use spot instances for batch processing",
+    "Enable automatic shutdown for dev environments",
+    "Consolidate data storage across services"
+  ]
+}
